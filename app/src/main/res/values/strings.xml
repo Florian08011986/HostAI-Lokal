@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">HostAI</string>
+    <string name="app_name">HostAI Lokal</string>
     <string name="server_status">Server Status</string>
     <string name="server_stopped">Stopped</string>
     <string name="server_running">Running</string>
@@ -50,7 +50,7 @@
     <string name="manage_models">Manage Models</string>
     <string name="settings">Settings</string>
     <string name="port_settings">Server Port</string>
-    <string name="port_settings_desc">Custom port for the API server (default: 8080). Restart server to apply changes.</string>
+    <string name="port_settings_desc">Custom port for the API server (default: 8085). Restart server to apply changes.</string>
     <string name="port_hint">Port number (1024–65535)</string>
     <string name="memory_usage">Memory Usage</string>
     <string name="memory_loading">Loading…</string>

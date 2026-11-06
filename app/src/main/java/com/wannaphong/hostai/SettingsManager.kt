@@ -27,13 +27,13 @@ class SettingsManager(context: Context) {
         const val BACKEND_GPU = "gpu"
         const val BACKEND_NPU = "npu"
 
-        const val DEFAULT_PORT = 8080
+        const val DEFAULT_PORT = 8085
         const val DEFAULT_MAX_CONCURRENCY = 1
         const val DEFAULT_MAX_CONTEXT_LENGTH = 2048
     }
     
     /**
-     * Get custom port setting (default: 8080)
+     * Get custom port setting (default: 8085)
      */
     fun getCustomPort(): Int {
         return prefs.getInt(KEY_CUSTOM_PORT, DEFAULT_PORT)

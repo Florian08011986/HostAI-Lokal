@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -283,9 +282,8 @@ class MainActivity : AppCompatActivity() {
             binding.serverStatusText.setTextColor(ContextCompat.getColor(this, R.color.success))
             binding.startStopButton.text = getString(R.string.stop_server)
             
-            val ipAddress = getLocalIpAddress()
             val port = apiServerService?.getServerPort() ?: ApiServerService.DEFAULT_PORT
-            val serverUrl = "http://$ipAddress:$port"
+            val serverUrl = "http://${OpenAIApiServer.BIND_HOST}:$port"
             
             binding.serverUrlDivider.visibility = View.VISIBLE
             binding.serverUrlLabel.visibility = View.VISIBLE
@@ -321,40 +319,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun getLocalIpAddress(): String {
-        try {
-            val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            val network = connectivityManager?.activeNetwork
-            val linkProperties = connectivityManager?.getLinkProperties(network)
-            linkProperties?.linkAddresses?.forEach { linkAddress ->
-                val address = linkAddress.address
-                if (!address.isLoopbackAddress && address is java.net.Inet4Address) {
-                    val hostAddress = address.hostAddress
-                    if (!hostAddress.isNullOrEmpty()) {
-                        return hostAddress
-                    }
-                }
-            }
-
-            // Fallback: iterate over active non-loopback network interfaces
-            val interfaces = java.net.NetworkInterface.getNetworkInterfaces() ?: return "localhost"
-            for (networkInterface in interfaces) {
-                if (networkInterface.isLoopback || !networkInterface.isUp) continue
-                for (address in networkInterface.inetAddresses) {
-                    if (!address.isLoopbackAddress && address is java.net.Inet4Address) {
-                        val hostAddress = address.hostAddress
-                        if (!hostAddress.isNullOrEmpty()) {
-                            return hostAddress
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            return "localhost"
-        }
-        return "localhost"
-    }
-    
     private fun copyUrlToClipboard() {
         val url = binding.serverUrlText.text.toString()
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -364,9 +328,8 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun testServer() {
-        val ipAddress = getLocalIpAddress()
         val port = apiServerService?.getServerPort() ?: ApiServerService.DEFAULT_PORT
-        val testUrl = "http://$ipAddress:$port/health"
+        val testUrl = "http://${OpenAIApiServer.BIND_HOST}:$port/health"
         
         CoroutineScope(Dispatchers.Main).launch {
             try {

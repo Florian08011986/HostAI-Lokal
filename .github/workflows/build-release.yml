@@ -4,6 +4,8 @@ on:
   release:
     types: [published]
   workflow_dispatch:  # Allow manual trigger
+  push:
+    branches: [lokal-127]  # Debug APK for the local-only build
 
 jobs:
   build:
@@ -38,22 +40,35 @@ jobs:
             echo "has_keystore=true" >> "$GITHUB_OUTPUT"
           fi
       
+      - name: Ensure debug keystore exists (debug only)
+        run: |
+          if [ ! -f ~/.android/debug.keystore ]; then
+            mkdir -p ~/.android
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon
       
       - name: Build Release APK and AAB (unsigned)
-        if: steps.check_keystore.outputs.has_keystore != 'true'
+        if: steps.check_keystore.outputs.has_keystore != 'true' && github.event_name != 'push'
         run: ./gradlew assembleRelease bundleRelease --no-daemon
       
       # FIX 1: Added '-i' to ignore newlines and moved file to ROOT (removed 'app/')
       - name: Decode Keystore
-        if: steps.check_keystore.outputs.has_keystore == 'true'
+        if: steps.check_keystore.outputs.has_keystore == 'true' && github.event_name != 'push'
         run: |
           echo "${{ secrets.KEYSTORE_FILE }}" | base64 -di > keystore.jks
       
       # FIX 2: Path now matches the file created above
       - name: Build Signed Release APK and AAB
-        if: steps.check_keystore.outputs.has_keystore == 'true'
+        if: steps.check_keystore.outputs.has_keystore == 'true' && github.event_name != 'push'
         run: |
           ./gradlew assembleRelease bundleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/keystore.jks \

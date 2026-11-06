@@ -39,7 +39,7 @@ class ApiServerService : Service() {
         private const val TAG = "ApiServerService"
         const val CHANNEL_ID = "ApiServerChannel"
         const val NOTIFICATION_ID = 1
-        const val DEFAULT_PORT = 8080
+        const val DEFAULT_PORT = 8085
         
         const val ACTION_START = "com.wannaphong.hostai.ACTION_START"
         const val ACTION_STOP = "com.wannaphong.hostai.ACTION_STOP"

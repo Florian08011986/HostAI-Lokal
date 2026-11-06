@@ -8,7 +8,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.wannaphong.hostai"
+        applicationId = "com.florian.hostai.lokal"
         minSdk = 26
         targetSdk = 35
         versionCode = 22

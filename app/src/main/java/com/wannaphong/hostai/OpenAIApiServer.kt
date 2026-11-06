@@ -70,6 +70,8 @@ class OpenAIApiServer(
     
     companion object {
         private const val TAG = "OpenAIApiServer"
+        // Bind only to loopback so the server is unreachable from other devices (LAN, Tailscale)
+        const val BIND_HOST = "127.0.0.1"
         // Maximum request body size (10 MB) to prevent memory exhaustion attacks
         private const val MAX_REQUEST_BODY_SIZE = 10 * 1024 * 1024
 
@@ -135,9 +137,9 @@ class OpenAIApiServer(
                     )
                     ctx.status(500).contentType("application/json").result(gson.toJson(errorResponse))
                 }
-            }.start(port)
+            }.start(BIND_HOST, port)
             
-            LogManager.i(TAG, "Javalin server started on port $port")
+            LogManager.i(TAG, "Javalin server started on $BIND_HOST:$port")
         } catch (e: Exception) {
             LogManager.e(TAG, "Failed to start Javalin server", e)
             throw e
