@@ -24,7 +24,7 @@ class LocalBindingTest {
         val app = Javalin.create { config -> config.showJavalinBanner = false }
             .start(OpenAIApiServer.BIND_HOST, 0)
         try {
-            val connector = app.jettyServer().server().connectors[0] as ServerConnector
+            val connector = app.jettyServer()!!.server().connectors[0] as ServerConnector
             assertEquals("127.0.0.1", connector.host)
         } finally {
             app.stop()
