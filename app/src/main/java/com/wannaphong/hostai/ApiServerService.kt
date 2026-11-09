@@ -63,9 +63,16 @@ class ApiServerService : Service() {
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_START -> {
-                val port = intent.getIntExtra(EXTRA_PORT, DEFAULT_PORT)
-                val modelPath = intent.getStringExtra(EXTRA_MODEL_PATH) ?: "mock-model"
+            // null = Android hat den Dienst nach dem Beenden neu gestartet (START_STICKY).
+            // Dann wie beim Autostart mit Port und Modell aus den Einstellungen starten,
+            // statt als leerer Dienst ohne Server weiterzulaufen.
+            ACTION_START, null -> {
+                val port = intent?.getIntExtra(EXTRA_PORT, -1)?.takeIf { it > 0 }
+                    ?: SettingsManager(this).getCustomPort()
+                val modelPath = intent?.getStringExtra(EXTRA_MODEL_PATH)
+                    ?: ModelManager(applicationContext).getSelectedModel()?.path
+                    ?: "mock-model"
+                LogManager.i(TAG, "Start (${intent?.action ?: "Neustart durch Android"}) mit Modell $modelPath")
                 startServer(port, modelPath)
             }
             ACTION_STOP, ACTION_STOP_FROM_NOTIFICATION -> {
